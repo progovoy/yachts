@@ -3,7 +3,7 @@ import pickle
 
 
 def init_game():
-    with open('/home/pavelr/b.txt', 'r') as f:
+    with open('answers.txt', 'r') as f:
         ans = f.read()
 
     answers = {}
@@ -25,7 +25,7 @@ def init_game():
             num[index] += 1
             index = (index + 1) % 4
 
-    with open('/home/pavelr/a.txt', 'r') as f:
+    with open('questions.txt', 'r') as f:
         q = f.read()
 
     exam = {}
@@ -59,6 +59,10 @@ def init_game():
     for key in exam.keys():
         game[key] = {'sucess_count': 0}
 
+        save(exam, game, answers)
+
+
+def save(exam, game, answers):
     with open('/tmp/save_exam.pickle', 'wb') as f:
         pickle.dump(exam, f)
     with open('/tmp/save_game.pickle', 'wb') as f:
@@ -67,9 +71,9 @@ def init_game():
         pickle.dump(answers, f)
 
 
-init = input("Start from scratc? y / n")
+init = input("Start from scratch? y / n")
 if init == 'y':
-    init = input("REALLY?!!!! yes i do / n")
+    init = input("REALLY?! yes i do / n")
     if init == 'yes i do':
         init_game()
 
@@ -108,12 +112,7 @@ while game:
             )
             print('{0} answered correctly'.format(correct_live))
         elif user_choice == 'save':
-            with open('/tmp/save_exam.pickle', 'wb') as f:
-                pickle.dump(exam, f)
-            with open('/tmp/save_game.pickle', 'wb') as f:
-                pickle.dump(game, f)
-            with open('/tmp/save_answers.pickle', 'wb') as f:
-                pickle.dump(answers, f)
+            save(exam, game, answers)
 
         user_choice = input("")
 

@@ -93,8 +93,6 @@ for k,v in game.items():
 
 while game:
     q, val = random.choice(list(exam.items()))
-    if q not in game:
-        continue
 
     print('{0} of 2'.format(game[q]['sucess_count']))
     print('{0} - {1}'.format(q, val['q']))

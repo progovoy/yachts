@@ -76,9 +76,9 @@ def init_game():
 
     game = {}
     for key in exam.keys():
-        game[key] = {'sucess_count': 0}
+        game[key] = {'success_count': 0}
 
-        save(exam, game, answers)
+    save(exam, game, answers)
 
 
 def save(exam, game, answers):
@@ -89,67 +89,101 @@ def save(exam, game, answers):
     with open(f'/tmp/save_answers_{exam_name}.pickle', 'wb') as f:
         pickle.dump(answers, f)
 
+    print('Saved successfully')
 
-exam_name = 'yam'
+
+def load():
+    with open(f'/tmp/save_exam_{exam_name}.pickle', 'rb') as f:
+        exam = pickle.load(f)
+    with open(f'/tmp/save_game_{exam_name}.pickle', 'rb') as f:
+        game = pickle.load(f)
+    with open(f'/tmp/save_answers_{exam_name}.pickle', 'rb') as f:
+        answers = pickle.load(f)
+
+    return exam, game, answers
+
+
+def print_status():
+    print(
+        'You have finished {0} questions '
+        'correctly. Left {1}'.format(correct,
+                                     num_of_q - correct
+                                     )
+    )
+    print('{0} answered correctly'.format(correct_live))
+
+
+def print_help():
+    print('Commands are:\n'
+          '?/help - help\n'
+          's - status\n'
+          'save - save exam to continue later\n'
+          'skip - skip question\n'
+          'exit - exit exam\n'
+          )
+
+
+def print_question():
+    print('{0} of {1}'.format(game[q]['success_count'], DIFFICULTY))
+    print('{0} - {1}'.format(q, val['q']))
+    for k, opt in val['opts'].items():
+        print('{0} - {1}'.format(k, opt))
+
+
+uinput = input(
+    "Choose exam\n"
+    "1 - yamaut\n"
+    "2 - mehona\n"
+    "3 - mahshirim\n")
+while uinput not in ['1', '2', '3']:
+    uinput = input(
+        "Choose exam\n"
+        "1 - yamaut\n"
+        "2 - mehona\n"
+        "3 - mahshirim\n")
+
+exam_name = None
+if uinput == '1':
+    exam_name = 'yam'
+elif uinput == '2':
+    exam_name = 'mec'
+elif uinput == '3':
+    exam_name = 'equ'
 
 if os.path.isfile(f'/tmp/save_exam_{exam_name}.pickle'):
-    init = input("Start from scratch? y / n")
-    if init == 'y':
-        init = input("REALLY?! yes i do / n")
-        if init == 'yes i do':
+    uinput = input("Start from scratch? y / n")
+    if uinput == 'y':
+        uinput = input("Are you sure? Type: 'yes i do' or 'no'")
+        if uinput == 'yes i do':
             init_game()
 else:
     init_game()
 
-with open(f'/tmp/save_exam_{exam_name}.pickle', 'rb') as f:
-    exam = pickle.load(f)
-with open(f'/tmp/save_game_{exam_name}.pickle', 'rb') as f:
-    game = pickle.load(f)
-with open(f'/tmp/save_answers_{exam_name}.pickle', 'rb') as f:
-    answers = pickle.load(f)
+exam, game, answers = load()
 
 num_of_q = len(game.keys())
 correct = 0
 
 correct_live = 0
 for k,v in game.items():
-    correct_live += v['sucess_count']
+    correct_live += v['success_count']
 
 DIFFICULTY = 2
 while game:
     q, val = random.choice(list(exam.items()))
 
-    print('{0} of {1}'.format(game[q]['sucess_count'], DIFFICULTY))
-    print('{0} - {1}'.format(q, val['q']))
-    for k, opt in val['opts'].items():
-        print('{0} - {1}'.format(k, opt))
+    print_question()
 
     user_choice = input("")
     while user_choice in ['s', 'save', '?', 'help']:
         if user_choice == 's':
-            print(
-                'You have finished {0} questions '
-                'correctly. Left {1}'.format(correct,
-                    num_of_q - correct
-                )
-            )
-            print('{0} answered correctly'.format(correct_live))
+            print_status()
         elif user_choice == 'save':
             save(exam, game, answers)
-            print('Saved successfully')
         elif user_choice in ['?', 'help']:
-            print('Commands are:\n'
-                  '?/help - help\n'
-                  's - status\n'
-                  'save - save exam to continue later\n'
-                  'skip - skip question\n'
-                  'exit - exit exam\n'
-            )
+            print_help()
 
-        print('{0} of {1}'.format(game[q]['sucess_count'], DIFFICULTY))
-        print('{0} - {1}'.format(q, val['q']))
-        for k, opt in val['opts'].items():
-            print('{0} - {1}'.format(k, opt))
+        print_question()
         user_choice = input("")
 
     if user_choice == 'exit':
@@ -164,8 +198,8 @@ while game:
             print()
 
         correct_live += 1
-        game[q]['sucess_count'] += 1
-        if game[q]['sucess_count'] == DIFFICULTY:
+        game[q]['success_count'] += 1
+        if game[q]['success_count'] == DIFFICULTY:
             game.pop(q)
             exam.pop(q)
             answers.pop(q)
@@ -181,8 +215,8 @@ while game:
         for i in range(3):
             print()
 
-        correct_live -= game[q]['sucess_count']
-        game[q]['sucess_count'] = 0
+        correct_live -= game[q]['success_count']
+        game[q]['success_count'] = 0
 
 
 def main():

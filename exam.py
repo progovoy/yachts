@@ -8,8 +8,7 @@ def init_game():
         ans = f.read()
 
     answers = {}
-    n = 0
-    if exam_name == 'yam':
+    if exam_name == 'mec':
         sums = ((1, 46, 91, 136),)
     elif exam_name == 'equ':
         sums = ((1, 31, 61, 91, 121, 151, 181),)
@@ -24,6 +23,9 @@ def init_game():
         num = [0] * len(tsum)
         index = 0
         for a in ans.split('\n'):
+            if a == '':
+                break
+
             for b in a.split()[1::2]:
                 if b == 'א':
                     b = 'a'
@@ -48,11 +50,15 @@ def init_game():
         if split[0][0].isdigit() > 0:
             l = [int(s) for s in split if s.isdigit()]
             split[1] = split[1].replace('.', '')
-            exam[l[0]] = {
-                'q': ' '.join(split[1:]),
-                'opts': {},
-                'ans': answers[l[0]]
-            }
+
+            try:
+                exam[l[0]] = {
+                    'q': ' '.join(split[1:]),
+                    'opts': {},
+                    'ans': answers[l[0]]
+                }
+            except Exception as aa:
+                pass
 
             cur_q = l[0]
         else:
@@ -84,7 +90,7 @@ def save(exam, game, answers):
         pickle.dump(answers, f)
 
 
-exam_name = 'equ'
+exam_name = 'yam'
 
 if os.path.isfile(f'/tmp/save_exam_{exam_name}.pickle'):
     init = input("Start from scratch? y / n")
@@ -177,3 +183,11 @@ while game:
 
         correct_live -= game[q]['sucess_count']
         game[q]['sucess_count'] = 0
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

@@ -51,14 +51,11 @@ def init_game():
             l = [int(s) for s in split if s.isdigit()]
             split[1] = split[1].replace('.', '')
 
-            try:
-                exam[l[0]] = {
-                    'q': ' '.join(split[1:]),
-                    'opts': {},
-                    'ans': answers[l[0]]
-                }
-            except Exception as aa:
-                pass
+            exam[l[0]] = {
+                'q': ' '.join(split[1:]),
+                'opts': {},
+                'ans': answers[l[0]]
+            }
 
             cur_q = l[0]
         else:
@@ -71,6 +68,8 @@ def init_game():
                 op = 'c'
             elif op == 'ד':
                 op = 'd'
+            else:
+                raise RuntimeError('Wrong questions file format')
 
             exam[cur_q]['opts'][op] = ' '.join(split[1:])
 

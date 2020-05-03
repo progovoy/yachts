@@ -167,6 +167,10 @@ correct_live = 0
 for k,v in game.items():
     correct_live += v['success_count']
 
+for item in exam.items():
+    if len(item[1]['opts']) != 4:
+        raise RuntimeError('Wrong questions file format')
+
 DIFFICULTY = 2
 while game:
     q, val = random.choice(list(exam.items()))

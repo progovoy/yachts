@@ -1,13 +1,19 @@
 import random
 import pickle
 import os
+import tempfile
+
+import tkinter as tk
 
 
-def init_game():
-    with open(f'a_{exam_name}.txt', 'r') as f:
+def init_game(exam_name):
+    encoding = 'utf-8'
+
+    with open(f'a_{exam_name}.txt', 'r', encoding=encoding) as f:
         ans = f.read()
 
     answers = {}
+    n = 0
     if exam_name == 'mec':
         sums = ((1, 46, 91, 136),)
     elif exam_name == 'equ':
@@ -15,7 +21,7 @@ def init_game():
     elif exam_name == 'yam':
         sums = ((1, 48, 95, 142, 189, 236, 283),
                 (330, 338, 346, 354, 362)
-               )
+                )
     else:
         raise RuntimeError(f'Unsupported exam name: {exam_name}')
 
@@ -40,7 +46,7 @@ def init_game():
                 num[index] += 1
                 index = (index + 1) % len(tsum)
 
-    with open(f'q_{exam_name}.txt', 'r') as f:
+    with open(f'q_{exam_name}.txt', 'r', encoding=encoding) as f:
         q = f.read()
 
     exam = {}
@@ -75,156 +81,138 @@ def init_game():
 
     game = {}
     for key in exam.keys():
-        game[key] = {'success_count': 0}
+        game[key] = {'sucess_count': 0}
 
-    save(exam, game, answers)
-
-
-def save(exam, game, answers):
-    with open(f'/tmp/save_exam_{exam_name}.pickle', 'wb') as f:
-        pickle.dump(exam, f)
-    with open(f'/tmp/save_game_{exam_name}.pickle', 'wb') as f:
-        pickle.dump(game, f)
-    with open(f'/tmp/save_answers_{exam_name}.pickle', 'wb') as f:
-        pickle.dump(answers, f)
-
-    print('Saved successfully')
+    return dict(exam_name=exam_name, exam=exam, game=game, answers=answers)
 
 
-def load():
-    with open(f'/tmp/save_exam_{exam_name}.pickle', 'rb') as f:
-        exam = pickle.load(f)
-    with open(f'/tmp/save_game_{exam_name}.pickle', 'rb') as f:
-        game = pickle.load(f)
-    with open(f'/tmp/save_answers_{exam_name}.pickle', 'rb') as f:
-        answers = pickle.load(f)
-
-    return exam, game, answers
+root = tk.Tk()
+root.geometry('750x500')
+root.pack_propagate(0)
 
 
-def print_status():
-    print(
-        'You have finished {0} questions '
-        'correctly. Left {1}'.format(correct,
-                                     num_of_q - correct
-                                     )
-    )
-    print('{0} answered correctly'.format(correct_live))
+class Game:
+    DIFFICULTY = 1
+
+    def __init__(self, exam_name, exam, game, answers):
+        self.exam_name = exam_name
+        self.game = game
+        self.exam = exam
+        self.answers = answers
+        self.correct = 0
+        self.correct_live = 0
+        for k, v in game.items():
+            self.correct_live += v['sucess_count']
+
+        frame = tk.Frame(root, background="bisque")
+        frame.pack(anchor=tk.N)
+
+        self.question = tk.StringVar()
+        self.label = tk.Label(frame,
+                              font=('Tahoma', 20),
+                              wraplength=root.winfo_width(),
+                              textvariable=self.question)
+        self.label.pack(anchor=tk.N)
+
+        self.opts_text = {}
+        self.opts = {}
+        self.ans_v = tk.StringVar()
+        for i in ['a', 'b', 'c', 'd']:
+            self.opts_text[i] = tk.StringVar()
+            self.opts[i] = tk.Radiobutton(frame,
+                                     textvariable=self.opts_text[i],
+                                     variable=self.ans_v,
+                                     value=i,
+                                     indicator=0,
+                                     font=('Tahoma', 16),
+                                     justify='right',
+                                     wraplength=root.winfo_width(),
+                                     command=self.check_answer)
+            self.opts[i].pack(anchor=tk.E)
+        tk.Button(frame,
+                  text='Next',
+                  command=self.update,
+                  background='MOCCASIN').pack(anchor=tk.S)
+
+        tk.Button(frame,
+                  text='Save',
+                  command=self.save,
+                  background='MOCCASIN').pack(anchor=tk.S)
+
+        self.stats_v = tk.StringVar()
+        tk.Label(frame,
+                 textvariable=self.stats_v).pack(anchor=tk.NW)
+
+        self.curr_question = None
+        self.update()
+
+    @classmethod
+    def load(cls, exam_name, clear):
+        if clear or not os.path.exists(f'{tempfile.gettempdir()}/save_answers_{exam_name}.pickle'):
+            return cls(**init_game(exam_name=exam_name))
+        else:
+            with open(f'{tempfile.gettempdir()}/save_exam_{exam_name}.pickle', 'rb') as f:
+                exam = pickle.load(f)
+            with open(f'{tempfile.gettempdir()}/save_game_{exam_name}.pickle', 'rb') as f:
+                game = pickle.load(f)
+            with open(f'{tempfile.gettempdir()}/save_answers_{exam_name}.pickle', 'rb') as f:
+                answers = pickle.load(f)
+            return cls(exam_name=exam_name, exam=exam, game=game, answers=answers)
+
+    def save(self):
+        with open(f'{tempfile.gettempdir()}/save_exam_{self.exam_name}.pickle', 'wb') as f:
+            pickle.dump(self.exam, f)
+        with open(f'{tempfile.gettempdir()}/save_game_{self.exam_name}.pickle', 'wb') as f:
+            pickle.dump(self.game, f)
+        with open(f'{tempfile.gettempdir()}/save_answers_{self.exam_name}.pickle', 'wb') as f:
+            pickle.dump(self.answers, f)
+
+    def update(self):
+        self.curr_question = random.choice(list(self.exam.keys()))
+        val = self.exam[self.curr_question]
+        self.question.set(val['q'])
+        for i, opt in val['opts'].items():
+            self.opts_text[i].set(opt)
+            self.opts[i].configure(background='light blue', state='normal')
+        self.stats_v.set(f'Correct {self.correct}/{len(self.exam)}\n'
+                         f'Q success count {self.game[self.curr_question]["sucess_count"]}\n'
+                         f'correct_live {self.correct_live}')
+
+    def check_answer(self):
+        ans = self.ans_v.get()
+        correct = self.answers[self.curr_question]
+        if ans == correct:
+            self.correct_live += 1
+            self.game[self.curr_question]['sucess_count'] += 1
+            if self.game[self.curr_question]['sucess_count'] == self.DIFFICULTY:
+                self.game.pop(self.curr_question)
+                self.exam.pop(self.curr_question)
+                self.answers.pop(self.curr_question)
+                self.correct += 1
+        else:
+            self.correct_live -= self.game[self.curr_question]['sucess_count']
+            self.game[self.curr_question]['sucess_count'] = 0
+
+        for opt in self.opts.values():
+            opt.configure(state='disabled')
+
+        self.opts[ans].deselect()
+        self.opts[ans].configure(background='LIGHTCORAL')
+        self.opts[correct].configure(background='LIGHTGREEN')
+
+bottomframe = tk.Frame(root)
+bottomframe.pack(side=tk.BOTTOM)
+
+exam_name='equ'
+tk.Button(bottomframe,
+          text='Load',
+          command=lambda: Game.load(exam_name=exam_name, clear=False),
+          background='MOCCASIN').pack(anchor=tk.S)
 
 
-def print_help():
-    print('Commands are:\n'
-          '?/help - help\n'
-          's - status\n'
-          'save - save exam to continue later\n'
-          'skip - skip question\n'
-          'exit - exit exam\n'
-          )
+tk.Button(bottomframe,
+          text='New Game',
+          command=lambda: Game.load(exam_name=exam_name, clear=True),
+          background='MOCCASIN').pack(anchor=tk.S)
 
-
-def print_question():
-    print('{0} of {1}'.format(game[q]['success_count'], DIFFICULTY))
-    print('{0} - {1}'.format(q, val['q']))
-    for k, opt in val['opts'].items():
-        print('{0} - {1}'.format(k, opt))
-
-
-uinput = input(
-    "Choose exam\n"
-    "1 - yamaut\n"
-    "2 - mehona\n"
-    "3 - mahshirim\n")
-while uinput not in ['1', '2', '3']:
-    uinput = input(
-        "Choose exam\n"
-        "1 - yamaut\n"
-        "2 - mehona\n"
-        "3 - mahshirim\n")
-
-exam_name = None
-if uinput == '1':
-    exam_name = 'yam'
-elif uinput == '2':
-    exam_name = 'mec'
-elif uinput == '3':
-    exam_name = 'equ'
-
-if os.path.isfile(f'/tmp/save_exam_{exam_name}.pickle'):
-    uinput = input("Start from scratch? y / n")
-    if uinput == 'y':
-        uinput = input("Are you sure? Type: 'yes i do' or 'no'")
-        if uinput == 'yes i do':
-            init_game()
-else:
-    init_game()
-
-exam, game, answers = load()
-
-num_of_q = len(game.keys())
-correct = 0
-
-correct_live = 0
-for k,v in game.items():
-    correct_live += v['success_count']
-
-for item in exam.items():
-    if len(item[1]['opts']) != 4:
-        raise RuntimeError('Wrong questions file format')
-
-DIFFICULTY = 2
-while game:
-    q, val = random.choice(list(exam.items()))
-
-    print_question()
-
-    user_choice = input("")
-    while user_choice in ['s', 'save', '?', 'help']:
-        if user_choice == 's':
-            print_status()
-        elif user_choice == 'save':
-            save(exam, game, answers)
-        elif user_choice in ['?', 'help']:
-            print_help()
-
-        print_question()
-        user_choice = input("")
-
-    if user_choice == 'exit':
-        break
-
-    if user_choice == 'skip':
-        continue
-
-    if user_choice == val['ans']:
-        print('Correct!')
-        for i in range(3):
-            print()
-
-        correct_live += 1
-        game[q]['success_count'] += 1
-        if game[q]['success_count'] == DIFFICULTY:
-            game.pop(q)
-            exam.pop(q)
-            answers.pop(q)
-            correct += 1
-    else:
-        print('Wrong!')
-        print(
-            'The answer is: {0} - {1}'.format(
-                answers[q], val['opts'][answers[q]]
-            )
-        )
-
-        for i in range(3):
-            print()
-
-        correct_live -= game[q]['success_count']
-        game[q]['success_count'] = 0
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()
+root.mainloop()

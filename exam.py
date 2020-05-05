@@ -203,11 +203,12 @@ class Game:
 bottomframe = tk.Frame(root)
 bottomframe.pack(side=tk.BOTTOM)
 
-exam_name='equ'
-tk.Button(bottomframe,
-          text='Load',
-          command=lambda: Game.load(exam_name=exam_name, clear=False),
-          background='MOCCASIN').pack(anchor=tk.S)
+exam_names=['equ', 'yam', 'mec']
+for exam_name in exam_names:
+    tk.Button(bottomframe,
+              text=f'Load {exam_name}',
+              command=lambda: Game.load(exam_name=exam_name, clear=False),
+              background='MOCCASIN').pack(anchor=tk.S)
 
 
 tk.Button(bottomframe,

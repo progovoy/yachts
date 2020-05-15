@@ -1,56 +1,42 @@
+import csv
 import random
 import pickle
 import os
+import re
+import sys
 import tempfile
 
+save_dir = tempfile.gettempdir()
+save_dir = './saved/'
+
 import tkinter as tk
+from PySide2 import QtCore, QtWidgets, QtGui
+
 
 
 def init_game(exam_name):
     encoding = 'utf-8'
 
-    with open(f'a_{exam_name}.txt', 'r', encoding=encoding) as f:
-        ans = f.read()
-
     answers = {}
-    n = 0
-    if exam_name == 'mec':
-        sums = ((1, 46, 91, 136),)
-    elif exam_name == 'equ':
-        sums = ((1, 31, 61, 91, 121, 151, 181),)
-    elif exam_name == 'yam':
-        sums = ((1, 48, 95, 142, 189, 236, 283),
-                (330, 338, 346, 354, 362)
-                )
-    else:
-        raise RuntimeError(f'Unsupported exam name: {exam_name}')
-
-    for tsum in sums:
-        num = [0] * len(tsum)
-        index = 0
-        for a in ans.split('\n'):
-            if a == '':
-                break
-
-            for b in a.split()[1::2]:
-                if b == 'א':
-                    b = 'a'
-                elif b == 'ב':
-                    b = 'b'
-                elif b == 'ג':
-                    b = 'c'
-                elif b == 'ד':
-                    b = 'd'
-
-                answers.update({num[index] + tsum[index]: b})
-                num[index] += 1
-                index = (index + 1) % len(tsum)
+    with open(f'a_{exam_name}.csv', 'r', encoding=encoding) as f:
+        for i, b in csv.reader(f):
+            if b == 'א':
+                b = 1
+            elif b == 'ב':
+                b = 2
+            elif b == 'ג':
+                b = 3
+            elif b == 'ד':
+                b = 4
+            answers[int(i)] = b
 
     with open(f'q_{exam_name}.txt', 'r', encoding=encoding) as f:
         q = f.read()
 
     exam = {}
+    rtl = "\u200F"
     cur_q = None
+    patt = re.compile('^[ .]*([^. ].*)')
     for a in q.split('\n'):
         split = a.split()
         if split[0][0].isdigit() > 0:
@@ -58,7 +44,7 @@ def init_game(exam_name):
             split[1] = split[1].replace('.', '')
 
             exam[l[0]] = {
-                'q': ' '.join(split[1:]),
+                'q': rtl + ' '.join(split),
                 'opts': {},
                 'ans': answers[l[0]]
             }
@@ -67,17 +53,19 @@ def init_game(exam_name):
         else:
             op = split[0][0]
             if op == 'א':
-                op = 'a'
+                op = 1
             elif op == 'ב':
-                op = 'b'
+                op = 2
             elif op == 'ג':
-                op = 'c'
+                op = 3
             elif op == 'ד':
-                op = 'd'
+                op = 4
             else:
                 raise RuntimeError('Wrong questions file format')
-
-            exam[cur_q]['opts'][op] = ' '.join(split[1:])
+            split[0] = split[0][2:]
+            op_text = ' '.join(split)
+            op_text = patt.match(op_text).group(1)
+            exam[cur_q]['opts'][op] = rtl + op_text
 
     game = {}
     for key in exam.keys():
@@ -86,15 +74,14 @@ def init_game(exam_name):
     return dict(exam_name=exam_name, exam=exam, game=game, answers=answers)
 
 
-root = tk.Tk()
-root.geometry('750x500')
-root.pack_propagate(0)
+class Game(QtWidgets.QWidget):
+    DIFFICULTY = 2
 
+    def __init__(self, exam_name, exam, game, answers, parent=None):
+        super().__init__(parent=parent)
 
-class Game:
-    DIFFICULTY = 1
+        # self.setLayoutDirection(QtCore.Qt.RightToLeft)
 
-    def __init__(self, exam_name, exam, game, answers):
         self.exam_name = exam_name
         self.game = game
         self.exam = exam
@@ -103,117 +90,159 @@ class Game:
         self.correct_live = 0
         for k, v in game.items():
             self.correct_live += v['sucess_count']
+            if v['sucess_count'] == self.DIFFICULTY:
+                self.correct += 1
 
-        frame = tk.Frame(root, background="bisque")
-        frame.pack(anchor=tk.N)
+        self.question = QtWidgets.QLabel()
+        self.question.setWordWrap(True)
+        # self.question.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.question.setFont(QtGui.QFont('Arial', 14))
 
-        self.question = tk.StringVar()
-        self.label = tk.Label(frame,
-                              font=('Tahoma', 20),
-                              wraplength=root.winfo_width(),
-                              textvariable=self.question)
-        self.label.pack(anchor=tk.N)
-
+        self.opts = QtWidgets.QButtonGroup()
         self.opts_text = {}
-        self.opts = {}
-        self.ans_v = tk.StringVar()
-        for i in ['a', 'b', 'c', 'd']:
-            self.opts_text[i] = tk.StringVar()
-            self.opts[i] = tk.Radiobutton(frame,
-                                     textvariable=self.opts_text[i],
-                                     variable=self.ans_v,
-                                     value=i,
-                                     indicator=0,
-                                     font=('Tahoma', 16),
-                                     justify='right',
-                                     wraplength=root.winfo_width(),
-                                     command=self.check_answer)
-            self.opts[i].pack(anchor=tk.E)
-        tk.Button(frame,
-                  text='Next',
-                  command=self.update,
-                  background='MOCCASIN').pack(anchor=tk.S)
 
-        tk.Button(frame,
-                  text='Save',
-                  command=self.save,
-                  background='MOCCASIN').pack(anchor=tk.S)
+        l = QtWidgets.QGridLayout()
+        l.setSpacing(2)
+        for i in range(1, 5):
+            label = QtWidgets.QLabel()
+            label.setWordWrap(True)
+            label.setFont(QtGui.QFont('Arial', 12))
+            # label.setLayoutDirection(QtCore.Qt.RightToLeft)
+            # label.setStyleSheet()
+            button = QtWidgets.QPushButton()
+            button.setFixedSize(QtCore.QSize(30, 30))
+            button.setStyleSheet("QPushButton"
+                                   "{"
+                                   "background-color : lightblue"
+                                   "}")
+            l.addWidget(label, i, 1)
+            l.addWidget(button, i, 0)
+            self.opts_text[i] = label
+            self.opts.addButton(button, i)
+            self.opts.button(i).setText(str(i))
+            self.opts.button(i).setShortcut(str(i))
+        self.opts.buttonClicked[int].connect(self.check_answer)
 
-        self.stats_v = tk.StringVar()
-        tk.Label(frame,
-                 textvariable=self.stats_v).pack(anchor=tk.NW)
+        self._next = QtWidgets.QPushButton("Next")
+        self._next.clicked.connect(self.update)
+        self._next.setShortcut("Return")
 
+        self._stats = QtWidgets.QLabel()
+
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addWidget(self.question)
+        self.layout.addLayout(l)
+        self.layout.addWidget(self._next)
+        self.layout.addWidget(self._stats)
+        self.setLayout(self.layout)
         self.curr_question = None
         self.update()
 
     @classmethod
     def load(cls, exam_name, clear):
-        if clear or not os.path.exists(f'{tempfile.gettempdir()}/save_answers_{exam_name}.pickle'):
+        if clear or not os.path.exists(f'{save_dir}/save_answers_{exam_name}.pickle'):
             return cls(**init_game(exam_name=exam_name))
         else:
-            with open(f'{tempfile.gettempdir()}/save_exam_{exam_name}.pickle', 'rb') as f:
+            with open(f'{save_dir}/save_exam_{exam_name}.pickle', 'rb') as f:
                 exam = pickle.load(f)
-            with open(f'{tempfile.gettempdir()}/save_game_{exam_name}.pickle', 'rb') as f:
+            with open(f'{save_dir}/save_game_{exam_name}.pickle', 'rb') as f:
                 game = pickle.load(f)
-            with open(f'{tempfile.gettempdir()}/save_answers_{exam_name}.pickle', 'rb') as f:
+            with open(f'{save_dir}/save_answers_{exam_name}.pickle', 'rb') as f:
                 answers = pickle.load(f)
             return cls(exam_name=exam_name, exam=exam, game=game, answers=answers)
 
     def save(self):
-        with open(f'{tempfile.gettempdir()}/save_exam_{self.exam_name}.pickle', 'wb') as f:
+        with open(f'{save_dir}/save_exam_{self.exam_name}.pickle', 'wb') as f:
             pickle.dump(self.exam, f)
-        with open(f'{tempfile.gettempdir()}/save_game_{self.exam_name}.pickle', 'wb') as f:
+        with open(f'{save_dir}/save_game_{self.exam_name}.pickle', 'wb') as f:
             pickle.dump(self.game, f)
-        with open(f'{tempfile.gettempdir()}/save_answers_{self.exam_name}.pickle', 'wb') as f:
+        with open(f'{save_dir}/save_answers_{self.exam_name}.pickle', 'wb') as f:
             pickle.dump(self.answers, f)
 
     def update(self):
-        self.curr_question = random.choice(list(self.exam.keys()))
+        keys = [k for k in self.exam.keys() if self.game[k]['sucess_count'] != self.DIFFICULTY]
+        self.curr_question = random.choice(keys)
+        assert self.curr_question in keys
         val = self.exam[self.curr_question]
-        self.question.set(val['q'])
+        q = val['q']
+        q = q.replace('(', '`').replace(')', '(').replace('`', ')')
+        self.question.setText(q)
         for i, opt in val['opts'].items():
-            self.opts_text[i].set(opt)
-            self.opts[i].configure(background='light blue', state='normal')
-        self.stats_v.set(f'Correct {self.correct}/{len(self.exam)}\n'
-                         f'Q success count {self.game[self.curr_question]["sucess_count"]}\n'
-                         f'correct_live {self.correct_live}')
+            opt = opt.replace('(', '`').replace(')', '(').replace('`', ')')
+            self.opts_text[i].setText(opt)
+            self.opts_text[i].setStyleSheet("QLabel"
+                           "{"
+                           "background-color : white"
+                           "}")
+            self.opts.button(i).setEnabled(True)
+            self.opts.button(i).setFont(QtGui.QFont('SansSerif', 14))
+        self._stats.setText(f'Correct {self.correct}/{len(self.exam)}\n'
+                            f'Q success count {self.game[self.curr_question]["sucess_count"]}\n'
+                            f'correct_live {self.correct_live}')
 
-    def check_answer(self):
-        ans = self.ans_v.get()
+    def check_answer(self, ans):
         correct = self.answers[self.curr_question]
         if ans == correct:
             self.correct_live += 1
             self.game[self.curr_question]['sucess_count'] += 1
             if self.game[self.curr_question]['sucess_count'] == self.DIFFICULTY:
-                self.game.pop(self.curr_question)
-                self.exam.pop(self.curr_question)
-                self.answers.pop(self.curr_question)
                 self.correct += 1
         else:
             self.correct_live -= self.game[self.curr_question]['sucess_count']
             self.game[self.curr_question]['sucess_count'] = 0
 
-        for opt in self.opts.values():
-            opt.configure(state='disabled')
+        for opt in self.opts.buttons():
+            opt.setDisabled(True)
 
-        self.opts[ans].deselect()
-        self.opts[ans].configure(background='LIGHTCORAL')
-        self.opts[correct].configure(background='LIGHTGREEN')
-
-bottomframe = tk.Frame(root)
-bottomframe.pack(side=tk.BOTTOM)
-
-exam_names=['equ', 'yam', 'mec']
-for exam_name in exam_names:
-    tk.Button(bottomframe,
-              text=f'Load {exam_name}',
-              command=lambda: Game.load(exam_name=exam_name, clear=False),
-              background='MOCCASIN').pack(anchor=tk.S)
+        self.opts_text[ans].setStyleSheet("QLabel"
+                                   "{"
+                                   "background-color : red"
+                                   "}")
+        self.opts_text[correct].setStyleSheet("QLabel"
+                                   "{"
+                                   "background-color : lightgreen"
+                                   "}")
+        self.save()
+        if ans == correct:
+            QtCore.QTimer.singleShot(250, self.update)
 
 
-tk.Button(bottomframe,
-          text='New Game',
-          command=lambda: Game.load(exam_name=exam_name, clear=True),
-          background='MOCCASIN').pack(anchor=tk.S)
+class MainWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.exams = QtWidgets.QButtonGroup()
+        exam_names = ['equ', 'yam', 'mec']
+        for exam_name in exam_names:
+            self.exams.addButton(QtWidgets.QRadioButton(exam_name))
+        self.load_game = QtWidgets.QPushButton("Load Game")
+        self.load_game.clicked.connect(lambda: self._load(clear=False))
+        self.new_game = QtWidgets.QPushButton("New Game")
+        self.new_game.clicked.connect(lambda: self._load(clear=True))
 
-root.mainloop()
+        self.layout = QtWidgets.QVBoxLayout()
+        self.top_layout = QtWidgets.QVBoxLayout()
+        self.bottom_layout = QtWidgets.QVBoxLayout()
+        self.layout.addLayout(self.top_layout)
+        self.layout.addLayout(self.bottom_layout)
+        [self.bottom_layout.addWidget(b) for b in self.exams.buttons()]
+        self.bottom_layout.addWidget(self.load_game)
+        self.bottom_layout.addWidget(self.new_game)
+        self.setLayout(self.layout)
+
+    def _load(self, clear):
+        self.top_layout.addWidget(
+            Game.load(self.exams.checkedButton().text(), clear=clear))
+        self.new_game.hide()
+        self.load_game.hide()
+        [b.hide() for b in self.exams.buttons()]
+
+
+if __name__ == '__main__':
+    QtCore.Qt.LayoutDirection(QtCore.Qt.RightToLeft)
+    app = QtWidgets.QApplication([])
+    app.setLayoutDirection(QtCore.Qt.RightToLeft)
+    widget = MainWidget()
+    widget.resize(1024, 800)
+    widget.show()
+
+    sys.exit(app.exec_())

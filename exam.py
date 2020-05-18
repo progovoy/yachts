@@ -69,7 +69,7 @@ def init_game(exam_name):
 
     game = {}
     for key in exam.keys():
-        game[key] = {'sucess_count': 0}
+        game[key] = {'sucess_count': 0, 'fail_count': 0}
 
     return dict(exam_name=exam_name, exam=exam, game=game, answers=answers)
 
@@ -123,17 +123,26 @@ class Game(QtWidgets.QWidget):
             self.opts.button(i).setShortcut(str(i))
         self.opts.buttonClicked[int].connect(self.check_answer)
 
+        self._image_label = QtWidgets.QLabel()
         self._next = QtWidgets.QPushButton("Next")
         self._next.clicked.connect(self.update)
         self._next.setShortcut("Return")
 
         self._stats = QtWidgets.QLabel()
+        self._stats.setFont(QtGui.QFont('Arial', 12))
 
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.addWidget(self.question)
         self.layout.addLayout(l)
         self.layout.addWidget(self._next)
-        self.layout.addWidget(self._stats)
+        l = QtWidgets.QHBoxLayout()
+        l.addWidget(self._image_label)
+        w = QtWidgets.QLabel()
+        w.setPixmap(QtGui.QPixmap(f'./images/{self.exam_name}/always.jpg').scaledToHeight(400))
+        l.addWidget(w)
+        l.addWidget(self._stats)
+        self.layout.addLayout(l)
+        # self.layout.addWidget(self._stats)
         self.setLayout(self.layout)
         self.curr_question = None
         self.update()
@@ -176,8 +185,14 @@ class Game(QtWidgets.QWidget):
                            "}")
             self.opts.button(i).setEnabled(True)
             self.opts.button(i).setFont(QtGui.QFont('SansSerif', 14))
+        image_file = f'./images/{self.exam_name}/{self.curr_question}.jpg'
+        if os.path.exists(image_file):
+            self._image_label.setPixmap(QtGui.QPixmap(image_file).scaledToHeight(400))
+        else:
+            self._image_label.clear()
         self._stats.setText(f'Correct {self.correct}/{len(self.exam)}\n'
                             f'Q success count {self.game[self.curr_question]["sucess_count"]}\n'
+                            f'Q fail count {self.game[self.curr_question]["fail_count"]}\n'
                             f'correct_live {self.correct_live}')
 
     def check_answer(self, ans):
@@ -190,6 +205,7 @@ class Game(QtWidgets.QWidget):
         else:
             self.correct_live -= self.game[self.curr_question]['sucess_count']
             self.game[self.curr_question]['sucess_count'] = 0
+            self.game[self.curr_question]['fail_count'] += 1
 
         for opt in self.opts.buttons():
             opt.setDisabled(True)
@@ -242,7 +258,8 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     app.setLayoutDirection(QtCore.Qt.RightToLeft)
     widget = MainWidget()
-    widget.resize(1024, 800)
+    # widget.resize(1024, 800)
+    widget.showFullScreen()
     widget.show()
 
     sys.exit(app.exec_())

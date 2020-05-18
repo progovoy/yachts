@@ -5,14 +5,10 @@ import os
 import re
 import sys
 import tempfile
+from PySide2 import QtCore, QtWidgets, QtGui
 
 save_dir = tempfile.gettempdir()
 save_dir = './saved/'
-
-import tkinter as tk
-from PySide2 import QtCore, QtWidgets, QtGui
-
-
 
 def init_game(exam_name):
     encoding = 'utf-8'
@@ -254,6 +250,8 @@ class MainWidget(QtWidgets.QWidget):
 
 
 if __name__ == '__main__':
+    os.makedirs(save_dir, exist_ok=True)
+
     QtCore.Qt.LayoutDirection(QtCore.Qt.RightToLeft)
     app = QtWidgets.QApplication([])
     app.setLayoutDirection(QtCore.Qt.RightToLeft)

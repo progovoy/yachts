@@ -71,9 +71,7 @@ def init_game(exam_name):
 
 
 class Game(QtWidgets.QWidget):
-    DIFFICULTY = 2
-
-    def __init__(self, exam_name, exam, game, answers, parent=None):
+    def __init__(self, exam_name, exam, game, answers, difficulty, continue_failed, parent=None):
         super().__init__(parent=parent)
 
         # self.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -82,11 +80,13 @@ class Game(QtWidgets.QWidget):
         self.game = game
         self.exam = exam
         self.answers = answers
+        self._difficulty = difficulty
+        self._continue_failed = continue_failed
         self.correct = 0
         self.correct_live = 0
         for k, v in game.items():
             self.correct_live += v['sucess_count']
-            if v['sucess_count'] == self.DIFFICULTY:
+            if v['sucess_count'] == self._difficulty:
                 self.correct += 1
 
         self.question = QtWidgets.QLabel()
@@ -144,9 +144,11 @@ class Game(QtWidgets.QWidget):
         self.update()
 
     @classmethod
-    def load(cls, exam_name, clear):
+    def load(cls, exam_name, clear, difficulty, continue_failed):
         if clear or not os.path.exists(f'{save_dir}/save_answers_{exam_name}.pickle'):
-            return cls(**init_game(exam_name=exam_name))
+            return cls(**init_game(exam_name=exam_name),
+                       difficulty=difficulty,
+                       continue_failed=continue_failed)
         else:
             with open(f'{save_dir}/save_exam_{exam_name}.pickle', 'rb') as f:
                 exam = pickle.load(f)
@@ -154,7 +156,9 @@ class Game(QtWidgets.QWidget):
                 game = pickle.load(f)
             with open(f'{save_dir}/save_answers_{exam_name}.pickle', 'rb') as f:
                 answers = pickle.load(f)
-            return cls(exam_name=exam_name, exam=exam, game=game, answers=answers)
+            return cls(exam_name=exam_name, exam=exam, game=game, answers=answers,
+                       difficulty=difficulty,
+                       continue_failed=continue_failed)
 
     def save(self):
         with open(f'{save_dir}/save_exam_{self.exam_name}.pickle', 'wb') as f:
@@ -165,7 +169,24 @@ class Game(QtWidgets.QWidget):
             pickle.dump(self.answers, f)
 
     def update(self):
-        keys = [k for k in self.exam.keys() if self.game[k]['sucess_count'] != self.DIFFICULTY]
+        def done(q_stats):
+            if q_stats['sucess_count'] < self._difficulty:
+                return False
+            elif q_stats['fail_count'] > 0 and self._continue_failed:
+                return False
+            return True
+
+        keys = [k for k in self.exam.keys() if not done(self.game[k])]
+        if len(keys) == 0:
+            image_file = f'./images/done.jpg'
+            self._image_label.setPixmap(QtGui.QPixmap(image_file).scaledToHeight(800))
+            self.question.hide()
+            for i in range(1,5):
+                self.opts_text[i].hide()
+                self.opts.button(i).hide()
+            self._next.hide()
+            return
+
         self.curr_question = random.choice(keys)
         assert self.curr_question in keys
         val = self.exam[self.curr_question]
@@ -226,26 +247,55 @@ class MainWidget(QtWidgets.QWidget):
         exam_names = ['equ', 'yam', 'mec']
         for exam_name in exam_names:
             self.exams.addButton(QtWidgets.QRadioButton(exam_name))
+
+        self.difficulty = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.difficulty.setMaximumWidth(100)
+        self.difficulty.setMinimum(1)
+        self.difficulty.setMaximum(5)
+        self.difficulty_label = QtWidgets.QLabel()
+        self.difficulty.valueChanged[int].connect(lambda x: self.difficulty_label.setText(f'Difficulty is {x}'))
+        self.difficulty.setValue(2)
+
+        self.failed_checkbox = QtWidgets.QCheckBox()
+        self.failed_checkbox.setText("continue iterating through any failed questions")
+
         self.load_game = QtWidgets.QPushButton("Load Game")
-        self.load_game.clicked.connect(lambda: self._load(clear=False))
+        self.load_game.clicked.connect(lambda: self._load(clear=False,
+                                                          difficulty=self.difficulty.value(),
+                                                          continue_failed=self.failed_checkbox.isChecked()))
         self.new_game = QtWidgets.QPushButton("New Game")
-        self.new_game.clicked.connect(lambda: self._load(clear=True))
+        self.new_game.clicked.connect(lambda: self._load(clear=True,
+                                                          difficulty=self.difficulty.value(),
+                                                          continue_failed=self.failed_checkbox.isChecked()))
 
         self.layout = QtWidgets.QVBoxLayout()
         self.top_layout = QtWidgets.QVBoxLayout()
         self.bottom_layout = QtWidgets.QVBoxLayout()
+        self.bottom_layout.setAlignment(QtCore.Qt.AlignBottom)
         self.layout.addLayout(self.top_layout)
         self.layout.addLayout(self.bottom_layout)
         [self.bottom_layout.addWidget(b) for b in self.exams.buttons()]
+        diff_layout = QtWidgets.QHBoxLayout()
+        self.difficulty_label.setAlignment(QtCore.Qt.AlignRight)
+        diff_layout.addWidget(self.difficulty)
+        diff_layout.addWidget(self.difficulty_label)
+        self.bottom_layout.addWidget(self.failed_checkbox)
+        self.bottom_layout.addLayout(diff_layout)
         self.bottom_layout.addWidget(self.load_game)
         self.bottom_layout.addWidget(self.new_game)
         self.setLayout(self.layout)
 
-    def _load(self, clear):
+    def _load(self, clear, difficulty, continue_failed):
         self.top_layout.addWidget(
-            Game.load(self.exams.checkedButton().text(), clear=clear))
+            Game.load(self.exams.checkedButton().text(),
+                      clear=clear,
+                      difficulty=difficulty,
+                      continue_failed=continue_failed))
         self.new_game.hide()
         self.load_game.hide()
+        self.difficulty.hide()
+        self.difficulty_label.hide()
+        self.failed_checkbox.hide()
         [b.hide() for b in self.exams.buttons()]
 
 

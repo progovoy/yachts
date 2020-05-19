@@ -217,7 +217,7 @@ class Game(QtWidgets.QWidget):
         if ans == correct:
             self.correct_live += 1
             self.game[self.curr_question]['sucess_count'] += 1
-            if self.game[self.curr_question]['sucess_count'] == self.DIFFICULTY:
+            if self.game[self.curr_question]['sucess_count'] == self._difficulty:
                 self.correct += 1
         else:
             self.correct_live -= self.game[self.curr_question]['sucess_count']

@@ -327,7 +327,7 @@ if __name__ == '__main__':
     app.setLayoutDirection(QtCore.Qt.RightToLeft)
     widget = MainWidget()
     # widget.resize(1024, 800)
-    widget.showFullScreen()
+    widget.showMaximized()
     widget.show()
 
     sys.exit(app.exec_())

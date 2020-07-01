@@ -33,50 +33,46 @@ def init_game(exam_name):
     rtl = "\u200F"
     cur_q = None
     patt = re.compile('^[ .]*([^. ].*)')
+    q_patt = re.compile('^([0-9,א-ד]+)[ .]*(.*)')
     for a in q.split('\n'):
-        split = a.split()
-        if split[0][0].isdigit() > 0:
-            l = [int(s) for s in split if s.isdigit()]
-            split[1] = split[1].replace('.', '')
-
-            exam[l[0]] = {
-                'q': rtl + ' '.join(split),
-                'opts': {},
-                'ans': answers[l[0]]
-            }
-
-            cur_q = l[0]
-        else:
-            op = split[0][0]
-            if op == 'א':
-                op = 1
-            elif op == 'ב':
-                op = 2
-            elif op == 'ג':
-                op = 3
-            elif op == 'ד':
-                op = 4
+        try:
+            m = q_patt.match(a)
+            op = m.group(1)
+            text = m.group(2)
+            if op.isnumeric():
+                cur_q = int(op)
+                exam[cur_q] = {
+                    'q': rtl + op + '-' + text,
+                    'opts': {},
+                    'ans': answers[cur_q]
+                }
             else:
-                raise RuntimeError('Wrong questions file format')
-            split[0] = split[0][2:]
-            op_text = ' '.join(split)
-            op_text = patt.match(op_text).group(1)
-            exam[cur_q]['opts'][op] = rtl + op_text
+                if op == 'א':
+                    op = 1
+                elif op == 'ב':
+                    op = 2
+                elif op == 'ג':
+                    op = 3
+                elif op == 'ד':
+                    op = 4
+                else:
+                    raise RuntimeError('Wrong questions file format')
+                exam[cur_q]['opts'][op] = rtl + text
+        except Exception as e:
+            print(f'{a} {e}')
+            raise
 
-    game = {}
-    for key in exam.keys():
-        game[key] = {'sucess_count': 0, 'fail_count': 0}
-
-    return dict(exam_name=exam_name, exam=exam, game=game, answers=answers)
+    return dict(exam_name=exam_name, exam=exam, answers=answers)
 
 
 class Game(QtWidgets.QWidget):
-    def __init__(self, exam_name, exam, game, answers, difficulty, continue_failed, continue_mandatory, parent=None):
+    def __init__(self, exam_name, exam, answers, difficulty, continue_failed, continue_mandatory, game=None, parent=None):
         super().__init__(parent=parent)
-
-        # self.setLayoutDirection(QtCore.Qt.RightToLeft)
-
         self.exam_name = exam_name
+        if game is None:
+            game = {}
+            for key in exam.keys():
+                game[key] = {'sucess_count': 0, 'fail_count': 0}
         self.game = game
         self.exam = exam
         self.answers = answers
@@ -151,30 +147,23 @@ class Game(QtWidgets.QWidget):
 
     @classmethod
     def load(cls, exam_name, clear, difficulty, continue_failed, continue_mandatory):
-        if clear or not os.path.exists(f'{save_dir}/save_answers_{exam_name}.pickle'):
+        if clear or not os.path.exists(f'{save_dir}/{exam_name}.pickle'):
             return cls(**init_game(exam_name=exam_name),
                        difficulty=difficulty,
                        continue_failed=continue_failed,
                        continue_mandatory=continue_mandatory)
         else:
-            with open(f'{save_dir}/save_exam_{exam_name}.pickle', 'rb') as f:
-                exam = pickle.load(f)
-            with open(f'{save_dir}/save_game_{exam_name}.pickle', 'rb') as f:
+            with open(f'{save_dir}/{exam_name}.pickle', 'rb') as f:
                 game = pickle.load(f)
-            with open(f'{save_dir}/save_answers_{exam_name}.pickle', 'rb') as f:
-                answers = pickle.load(f)
-            return cls(exam_name=exam_name, exam=exam, game=game, answers=answers,
+            return cls(**init_game(exam_name=exam_name),
+                       game=game,
                        difficulty=difficulty,
                        continue_failed=continue_failed,
                        continue_mandatory=continue_mandatory)
 
     def save(self):
-        with open(f'{save_dir}/save_exam_{self.exam_name}.pickle', 'wb') as f:
-            pickle.dump(self.exam, f)
-        with open(f'{save_dir}/save_game_{self.exam_name}.pickle', 'wb') as f:
+        with open(f'{save_dir}/{self.exam_name}.pickle', 'wb') as f:
             pickle.dump(self.game, f)
-        with open(f'{save_dir}/save_answers_{self.exam_name}.pickle', 'wb') as f:
-            pickle.dump(self.answers, f)
 
     def set_stats(self):
         self._stats.setText(f'Correct {self.correct}/{len(self.exam)}\n'

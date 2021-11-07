@@ -1,6 +1,7 @@
 import random
 import pickle
 import os
+import json
 
 
 def init_game():
@@ -87,6 +88,14 @@ def save(exam, game, answers):
         pickle.dump(game, f)
     with open(f'/tmp/save_answers_{exam_name}.pickle', 'wb') as f:
         pickle.dump(answers, f)
+
+    # Writing a JSON file
+    with open(f'/tmp/save_answers_{exam_name}.json', 'w') as f:
+        json.dump(answers, f)
+    with open(f'/tmp/save_game_{exam_name}.json', 'w') as f:
+        json.dump(game, f)
+    with open(f'/tmp/save_exam_{exam_name}.json', 'w') as f:
+        json.dump(exam, f)
 
     print('Saved successfully')
 

@@ -38,7 +38,7 @@ function next(){
     var innerContent = `<button role="button" onclick="next(this)">Next</button><br><br>`;
     innerContent += `<p>${question['q']}</p>`;
     for (const [key, value] of Object.entries(question['opts'])) {
-        innerContent += `<button role="button" onclick="answer(${q_number}, this)" id=${key} style="width: 45px; height: 20px; text-align: center; color: white; background: #23b7e5; font-size: 13px; border-color: #23b7e5; border-radius:2px; padding: 0px; ">${key}</button>`
+        innerContent += `<button role="button" onclick="answer(${q_number}, this)" id=${key} style="width: 45px; height: 20px; text-align: center; color: white; background: #23b7e5; font-size: 13px; border-color: #23b7e5; border-radius:2px; padding: 10px; ">${key}</button>`
         innerContent += `<label id=${key}-lbl>${value}</label><br>`
     }
 

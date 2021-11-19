@@ -1,95 +1,102 @@
-var gState = {}
-var gA = {}
-var gExam = {}
+console.log(q_equ)
 
-var gCurrenExamType
+var gType = null
+var count_yam = {
+    "c": 0,
+    "total": Object.keys(q_yam).length
+}
+var count_mec = {
+    "c": 0,
+    "total": Object.keys(q_mec).length
+}
+var count_equ = {
+    "c": 0,
+    "total": Object.keys(q_equ).length
+}
 
-function shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+function random(obj) {
+    var keys = Object.keys(obj)
+    var prop = keys[Math.floor(Math.random() * keys.length)]
+    console.log(prop)
+    return prop
+}
+
+function choice(answer, selected) {
+    var count = game_yam[selected]
+    var exam = window[`q_${gType}`]
+    var count_exam = window[`count_${gType}`]
+
+    document.querySelector('.css-a').disabled = true
+    document.querySelector('.css-b').disabled = true
+    document.querySelector('.css-c').disabled = true
+    document.querySelector('.css-d').disabled = true
+    var correct = exam[selected]['ans']
+    if (answer === correct) {
+        var element = document.querySelector(`.css-${correct}`)
+        element.style.color = "green"
+        count['success_count']++
+        var elCount = document.querySelector('.count')
+        elCount.innerHTML = `count ${count['success_count']}/2`
+        if (count['success_count'] === 2) {
+
+
+            delete exam[selected];
+
+
+        }
+
+
+
+
+    } else {
+        var element = document.querySelector(`.css-${answer}`)
+        element.style.color = "red"
+
+        var element = document.querySelector(`.css-${correct}`)
+        element.style.color = "green"
+
+
     }
 }
 
 function init_exam(type) {
-    gCurrenExamType = type;
-
-    if (gExam[type] === undefined) {
-        gState[type] = window[`game_${type}`];
-        gA[type] = window[`a_${type}`];
-        gExam[type] = window[`q_${type}`];
+    if (gType === type) {
+        return
     }
+    gType = type
+    init_next()
+    var elb = document.querySelector(".next")
+    elb.style.display = ""
 
-    next()
+
 }
 
-function next(){
-    var questions = Object.keys(gExam[gCurrenExamType]);
-    var question;
-    var idx;
-     
-    idx = Math.floor(Math.random() * questions.length);
-    q_number = questions[idx];
-    question = gExam[gCurrenExamType][q_number];
 
-    var elem = document.getElementById("exam");
-    var innerContent = `<button role="button" onclick="next(this)">Next</button><br><br>`;
-    innerContent += `<p>${question['q']}</p>`;
-    for (const [key, value] of Object.entries(question['opts'])) {
-        innerContent += `<button role="button" onclick="answer(${q_number}, this)" id=${key} style="width: 45px; height: 20px; text-align: center; color: white; background: #23b7e5; font-size: 13px; border-color: #23b7e5; border-radius:2px; padding: 0px;">${key}</button>`
-        innerContent += `<label id=${key}-lbl style="padding: 10px;">${value}</label><br>`
+function init_next() {
+    if (gType === null) {
+        return
     }
+    var s = ""
+    var yam = document.querySelector('.question')
+    var exam = window[`q_${gType}`]
+    var selected = random(exam)
+    var que = exam[selected]
 
-    innerContent += `<br>`
+    s = s + `<h3>${selected}. ${que['q']}</h3>`
+    var arr = ['a', 'b', 'c', 'd']
+    for (var i = 0; i < 4; i++) {
+        s = s + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
+        s = s + "<br>"
 
-    elem.innerHTML = innerContent;
-
-    var el_status = document.getElementById("status")
-
-    el_status.innerHTML = `Question Num: ${q_number} <br>`
-    el_status.innerHTML += `Total: ${Object.keys(gExam[gCurrenExamType]).length} <br>`
-    el_status.innerHTML += `Score: ${gState[gCurrenExamType][q_number]["success_count"]} / 2<br>`;
+    }
+    yam.innerHTML = s
 }
 
-function answer(q_num, b){
-    if (gExam[gCurrenExamType][q_num] === undefined){
-        return;
-    }
 
-    question = gExam[gCurrenExamType][q_num];
-    for (const [key, value] of Object.entries(question['opts'])) {
-        document.getElementById(key).disabled = true;
-    }
 
-    var choice = b.innerText;
 
-    var el_status = document.getElementById("status")
-
-    el_status.innerHTML = `Question Num: ${q_num} <br>`
-    el_status.innerHTML += `Total: ${Object.keys(gExam[gCurrenExamType]).length} <br>`
-    
-    if (choice === gExam[gCurrenExamType][q_num]["ans"]) {
-        gState[gCurrenExamType][q_num]["success_count"] += 1
-        document.getElementById(choice).style.color = 'green'
-        document.getElementById(`${choice}-lbl`).style.color = 'green'
-    }
-    else {
-        gState[gCurrenExamType][q_num]["success_count"] = 0
-        document.getElementById(choice).style.color = 'red'
-        document.getElementById(`${choice}-lbl`).style.color = 'red'
-    }
-
-    el_status.innerHTML += `Score: ${gState[gCurrenExamType][q_num]["success_count"]} / 2<br>`;
-
-    if (gState[gCurrenExamType][q_num]["success_count"] === 2) {
-        delete gExam[gCurrenExamType][q_num];
-        delete gState[gCurrenExamType][q_num];
-        delete gA[gCurrenExamType][q_num];
-    }
-
-    if (Object.keys(gExam[gCurrenExamType]).length === 0) {
-        el_status.innerHTML += `<p>You are done</p><br>`;
-    }
-}
+/*console.log(window[`q_${type}`])
+console.log(window[`a_${type}`])
+console.log(window[`game_${type}`])
+console.log(type);
+*/

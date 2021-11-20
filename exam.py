@@ -2,77 +2,60 @@ import random
 import pickle
 import os
 import json
+import csv
+import re
 
 
 def init_game():
-    with open(f'a_{exam_name}.txt', 'r') as f:
-        ans = f.read()
-
     answers = {}
-    if exam_name == 'mec':
-        sums = ((1, 46, 91, 136),)
-    elif exam_name == 'equ':
-        sums = ((1, 31, 61, 91, 121, 151, 181),)
-    elif exam_name == 'yam':
-        sums = ((1, 48, 95, 142, 189, 236, 283),
-                (330, 338, 346, 354, 362)
-               )
-    else:
-        raise RuntimeError(f'Unsupported exam name: {exam_name}')
+    with open(f'a_{exam_name}.csv', 'r', encoding='utf-8') as f:
+        for i, b in csv.reader(f):
+            if b == 'א':
+                b = 1
+            elif b == 'ב':
+                b = 2
+            elif b == 'ג':
+                b = 3
+            elif b == 'ד':
+                b = 4
+            answers[int(i)] = b
 
-    for tsum in sums:
-        num = [0] * len(tsum)
-        index = 0
-        for a in ans.split('\n'):
-            if a == '':
-                break
-
-            for b in a.split()[1::2]:
-                if b == 'א':
-                    b = 'a'
-                elif b == 'ב':
-                    b = 'b'
-                elif b == 'ג':
-                    b = 'c'
-                elif b == 'ד':
-                    b = 'd'
-
-                answers.update({num[index] + tsum[index]: b})
-                num[index] += 1
-                index = (index + 1) % len(tsum)
-
-    with open(f'q_{exam_name}.txt', 'r') as f:
+    with open(f'q_{exam_name}.txt', 'r', encoding='utf-8') as f:
         q = f.read()
 
     exam = {}
+    rtl = "\u200F"
     cur_q = None
+    patt = re.compile('^[ .]*([^. ].*)')
+    q_patt = re.compile('^([0-9,א-ד]+)[ .]*(.*)')
     for a in q.split('\n'):
-        split = a.split()
-        if split[0][0].isdigit() > 0:
-            l = [int(s) for s in split if s.isdigit()]
-            split[1] = split[1].replace('.', '')
-
-            exam[l[0]] = {
-                'q': ' '.join(split[1:]),
-                'opts': {},
-                'ans': answers[l[0]]
-            }
-
-            cur_q = l[0]
-        else:
-            op = split[0][0]
-            if op == 'א':
-                op = 'a'
-            elif op == 'ב':
-                op = 'b'
-            elif op == 'ג':
-                op = 'c'
-            elif op == 'ד':
-                op = 'd'
+        try:
+            m = q_patt.match(a)
+            op = m.group(1)
+            text = m.group(2)
+            if op.isnumeric():
+                cur_q = int(op)
+                exam[cur_q] = {
+                    'q': rtl + op + '-' + text,
+                    'opts': {},
+                    'ans': answers[cur_q]
+                }
             else:
-                raise RuntimeError('Wrong questions file format')
+                if op == 'א':
+                    op = 1
+                elif op == 'ב':
+                    op = 2
+                elif op == 'ג':
+                    op = 3
+                elif op == 'ד':
+                    op = 4
+                else:
+                    raise RuntimeError('Wrong questions file format')
+                exam[cur_q]['opts'][op] = rtl + text
+        except Exception as e:
+            print(f'{a} {e}')
+            raise
 
-            exam[cur_q]['opts'][op] = ' '.join(split[1:])
 
     game = {}
     for key in exam.keys():

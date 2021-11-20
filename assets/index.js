@@ -26,10 +26,10 @@ function choice(answer, selected) {
     var exam = window[`q_${gType}`]
     var count_exam = window[`count_${gType}`]
 
-    document.querySelector('.css-a').disabled = true
-    document.querySelector('.css-b').disabled = true
-    document.querySelector('.css-c').disabled = true
-    document.querySelector('.css-d').disabled = true
+    document.querySelector('.css-1').disabled = true
+    document.querySelector('.css-2').disabled = true
+    document.querySelector('.css-3').disabled = true
+    document.querySelector('.css-4').disabled = true
     var correct = exam[selected]['ans']
     if (answer === correct) {
         var element = document.querySelector(`.css-${correct}`)
@@ -87,8 +87,8 @@ function init_next() {
     var elCount=document.querySelector('.count')
     elCount.innerHTML=`count 0/2`
 
-    s = s + `<h3>${selected}. ${que['q']}</h3>`
-    var arr = ['a', 'b', 'c', 'd']
+    s = s + `<h3>${que['q']}</h3>`
+    var arr = ['1', '2', '3', '4']
     for (var i = 0; i < 4; i++) {
         s = s + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
         s = s + "<br>"

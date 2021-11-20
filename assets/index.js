@@ -38,16 +38,14 @@ function choice(answer, selected) {
         var elCount = document.querySelector('.count')
         elCount.innerHTML = `count ${count['success_count']}/2`
         if (count['success_count'] === 2) {
-
-
             delete exam[selected];
-
-
+            count_exam['c']++
+            if (count_exam['c']===count_exam['total']) {
+                var elQues = document.querySelector('.questions')
+                elQues.style.color="green"
+                elQues.innerHTML=`${count_exam['c']}/${count_exam['total']} you are completed the exam!`
+            }
         }
-
-
-
-
     } else {
         var element = document.querySelector(`.css-${answer}`)
         element.style.color = "red"
@@ -76,11 +74,18 @@ function init_next() {
     if (gType === null) {
         return
     }
+    
+    
     var s = ""
     var yam = document.querySelector('.question')
     var exam = window[`q_${gType}`]
     var selected = random(exam)
     var que = exam[selected]
+    var count_exam = window[`count_${gType}`]
+    var elQues = document.querySelector('.questions')
+    elQues.innerHTML=`${count_exam['c']}/${count_exam['total']}`
+    var elCount=document.querySelector('.count')
+    elCount.innerHTML=`count 0/2`
 
     s = s + `<h3>${selected}. ${que['q']}</h3>`
     var arr = ['a', 'b', 'c', 'd']

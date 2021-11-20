@@ -16,6 +16,9 @@ var count_equ = {
 
 function random(obj) {
     var keys = Object.keys(obj)
+    if (keys.length === 0) {
+        return null
+    }
     var prop = keys[Math.floor(Math.random() * keys.length)]
     console.log(prop)
     return prop
@@ -42,10 +45,10 @@ function choice(answer, selected) {
         if (count['success_count'] === 2) {
             delete exam[selected];
             count_exam['c']++
-            if (count_exam['c']===count_exam['total']) {
+            if (count_exam['c'] === count_exam['total']) {
                 var elQues = document.querySelector('.questions')
-                elQues.style.color="green"
-                elQues.innerHTML=`${count_exam['c']}/${count_exam['total']} you are completed the exam!`
+                elQues.style.color = "green"
+                elQues.innerHTML = `${count_exam['c']}/${count_exam['total']} you are completed the exam!`
             }
         }
     } else {
@@ -76,27 +79,47 @@ function init_next() {
     if (gType === null) {
         return
     }
-    
-    var s = ""
-    var yam = document.querySelector('.question')
+
+    var should_mark = false
+
     var exam = window[`q_${gType}`]
     var count_exam = window[`count_${gType}`]
     var game_exam = window[`game_${gType}`]
+    var mandat = window[`mandatory_${gType}`]
     var selected = random(exam)
+    if (selected === null) {
+        return
+    }
     var que = exam[selected]
-    var elQues = document.querySelector('.questions')
-    elQues.innerHTML=`${count_exam['c']}/${count_exam['total']}`
-    var elCount=document.querySelector('.count')
-    elCount.innerHTML=`count ${game_exam[selected]["success_count"]}/2`
 
-    s = s + `<h3>${que['q']}</h3>`
+    var elQues = document.querySelector('.questions')
+    elQues.innerHTML = `questions ${count_exam['c']}/${count_exam['total']}`
+    var elCount = document.querySelector('.count')
+    elCount.innerHTML = `count ${game_exam[selected]["success_count"]}/2`
+
+    var elQs = document.querySelector('.question')
+    var s = ""
+    for (let i = 0; i < mandat.length; i++) {
+        var number = mandat[i];
+        if (selected === `${number}`) {
+            should_mark = true
+        }
+    }
+
+    if (should_mark) {
+        s = s + `<h3>*${que['q']}</h3>`
+    }
+    else {
+        s = s + `<h3>${que['q']}</h3>`
+    }
+
     var arr = ['1', '2', '3', '4']
     for (var i = 0; i < 4; i++) {
         s = s + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
         s = s + "<br>"
 
     }
-    yam.innerHTML = s
+    elQs.innerHTML = s
 }
 
 

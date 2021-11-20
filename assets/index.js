@@ -22,15 +22,17 @@ function random(obj) {
 }
 
 function choice(answer, selected) {
-    var count = game_yam[selected]
+    var game_exam = window[`game_${gType}`]
     var exam = window[`q_${gType}`]
     var count_exam = window[`count_${gType}`]
+
+    var count = game_exam[selected]
 
     document.querySelector('.css-1').disabled = true
     document.querySelector('.css-2').disabled = true
     document.querySelector('.css-3').disabled = true
     document.querySelector('.css-4').disabled = true
-    var correct = exam[selected]['ans']
+    var correct = `${exam[selected]['ans']}`
     if (answer === correct) {
         var element = document.querySelector(`.css-${correct}`)
         element.style.color = "green"
@@ -75,17 +77,17 @@ function init_next() {
         return
     }
     
-    
     var s = ""
     var yam = document.querySelector('.question')
     var exam = window[`q_${gType}`]
+    var count_exam = window[`count_${gType}`]
+    var game_exam = window[`game_${gType}`]
     var selected = random(exam)
     var que = exam[selected]
-    var count_exam = window[`count_${gType}`]
     var elQues = document.querySelector('.questions')
     elQues.innerHTML=`${count_exam['c']}/${count_exam['total']}`
     var elCount=document.querySelector('.count')
-    elCount.innerHTML=`count 0/2`
+    elCount.innerHTML=`count ${game_exam[selected]["success_count"]}/2`
 
     s = s + `<h3>${que['q']}</h3>`
     var arr = ['1', '2', '3', '4']

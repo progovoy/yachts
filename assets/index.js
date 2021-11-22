@@ -133,11 +133,12 @@ function render_question(selected, q_image)
 
     }
 
+    s += `<img src="assets/images/${gType}/always.jpg" style="width:500px;height:600px;"></img>`
+
     if (q_image){
         s += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')" style="width:500px;height:600px;"></img>`
     }
-    s += `<img src="assets/images/${gType}/always.jpg" style="width:500px;height:600px;"></img>`
-
+    
     elQs.innerHTML = s
 }
 

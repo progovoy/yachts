@@ -116,9 +116,14 @@ function init_next() {
     var arr = ['1', '2', '3', '4']
     for (var i = 0; i < 4; i++) {
         s = s + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
-        s = s + "<br>"
+        s = s + "<br><br>"
 
     }
+
+    s += `<img src="assets/images/${gType}/${selected}.jpg"></img>`
+
+    s += `<img src="assets/images/${gType}/always.jpg" alt=""></img>`
+
     elQs.innerHTML = s
 }
 

@@ -80,17 +80,30 @@ function init_next() {
         return
     }
 
-    var should_mark = false
-
     var exam = window[`q_${gType}`]
-    var count_exam = window[`count_${gType}`]
-    var game_exam = window[`game_${gType}`]
-    var mandat = window[`mandatory_${gType}`]
+
     var selected = random(exam)
     if (selected === null) {
         return
     }
+
+    render_question(selected, true)
+}
+
+function imgError(selected)
+{
+    render_question(selected, false)
+}
+
+function render_question(selected, q_image)
+{
+    var exam = window[`q_${gType}`]
+    var count_exam = window[`count_${gType}`]
+    var game_exam = window[`game_${gType}`]
+    var mandat = window[`mandatory_${gType}`]
+
     var que = exam[selected]
+    var should_mark = false
 
     var elQues = document.querySelector('.questions')
     elQues.innerHTML = `questions ${count_exam['c']}/${count_exam['total']}`
@@ -120,14 +133,13 @@ function init_next() {
 
     }
 
-    s += `<img src="assets/images/${gType}/${selected}.jpg"></img>`
-
+    if (q_image){
+        s += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')" style="width:500px;height:600px;"></img>`
+    }
     s += `<img src="assets/images/${gType}/always.jpg" style="width:500px;height:600px;"></img>`
 
     elQs.innerHTML = s
 }
-
-
 
 
 /*console.log(window[`q_${type}`])

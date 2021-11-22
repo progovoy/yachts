@@ -122,7 +122,7 @@ function init_next() {
 
     s += `<img src="assets/images/${gType}/${selected}.jpg"></img>`
 
-    s += `<img src="assets/images/${gType}/always.jpg" alt=""></img>`
+    s += `<img src="assets/images/${gType}/always.jpg" style="width:500px;height:600px;"></img>`
 
     elQs.innerHTML = s
 }

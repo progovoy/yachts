@@ -20,7 +20,7 @@ function random(obj) {
         return null
     }
     var prop = keys[Math.floor(Math.random() * keys.length)]
-    console.log(prop)
+
     return prop
 }
 
@@ -28,6 +28,7 @@ function choice(answer, selected) {
     var game_exam = window[`game_${gType}`]
     var exam = window[`q_${gType}`]
     var count_exam = window[`count_${gType}`]
+    var mandat = window[`mandatory_${gType}`]
 
     var count = game_exam[selected]
 
@@ -44,6 +45,11 @@ function choice(answer, selected) {
         elCount.innerHTML = `count ${count['success_count']}/2`
         if (count['success_count'] === 2) {
             delete exam[selected];
+            var index = mandat.indexOf(parseInt(selected));
+            if (index !== -1) {
+                mandat.splice(index, 1);
+            }
+
             count_exam['c']++
             if (count_exam['c'] === count_exam['total']) {
                 var elQues = document.querySelector('.questions')
@@ -70,8 +76,20 @@ function init_exam(type) {
     init_next()
     var elb = document.querySelector(".next")
     elb.style.display = ""
+    var elb = document.querySelector(".next_must")
+    elb.style.display = ""
+}
 
+function init_must_next()
+{
+    var mandat = window[`mandatory_${gType}`]
+    if (mandat.length === 0) {
+        return
+    }
 
+    var selected = mandat[Math.floor(Math.random() * mandat.length)]
+
+    render_question(`${selected}`, true)
 }
 
 

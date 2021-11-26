@@ -2,12 +2,16 @@
 <html lang="he" dir="rtl">
 
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiple choice exam</title>
     <script src="assets/exam-data/question.js"></script>
     <script src="assets/index.js" defer></script>
-    <script src="original_files/css.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/main.css">   
 </head>
 
 <body>
@@ -22,9 +26,12 @@
     <br>
     
     <div class="question-list"></div>
-    <button role="button" onclick="init_exam('yam')">Yamaut</button>
-    <button role="button" onclick="init_exam('mec')">Machine</button>
-    <button role="button" onclick="init_exam('equ')">Navigation</button>
+    <div class="init">
+        <button role="button" onclick="init_exam('yam')">Yamaut</button>
+        <button role="button" onclick="init_exam('mec')">Machine</button>
+        <button role="button" onclick="init_exam('equ')">Navigation</button>
+    </div>
+  
     <br>
     <br>
     <button class="next" style="display:none" onclick="init_next()">next</button>
@@ -34,6 +41,87 @@
     
     <div class="question"> </div>
     <br>
+
+
+
+    <div class="container d-flex justify-content-center mt-4">
+        <div class="card p-3 mt-3">
+            <h5 class="mt-3 mb-3">Performance score</h5>
+            <div class="border p-2 rounded d-flex flex-row align-items-center">
+                <div class="p-1 px-4 d-flex flex-column align-items-center score rounded"> <span class="d-block char text-success">A</span> <span class="text-success">98%</span> </div>
+                <div class="ml-2 p-3">
+                    <h6 class="heading1">PageSpeed Score</h6> <span>The average page speed score is 75%</span>
+                </div>
+            </div>
+            <div class="border p-2 rounded d-flex flex-row align-items-center mt-2">
+                <div class="p-1 px-4 d-flex flex-column align-items-center speed rounded"> <span class="d-block char text-warning">C</span> <span class="text-warning">72%</span> </div>
+                <div class="ml-2 p-4">
+                    <h6 class="text">YSlow Score</h6> <span>The average YSlow score is 76%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <div class="container-fluid">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Q. What does CSS stands for?</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="col-xs-3 5"> </div>
+                    <div class="quiz" id="quiz" data-toggle="buttons"> <label class="element-animation1 btn btn-lg btn-danger btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1"> Computer Style Sheets</label> <label class="element-animation2 btn btn-lg btn-danger btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">Cascading Style Sheets</label> <label class="element-animation3 btn btn-lg btn-danger btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">Creative Style Sheets</label> <label class="element-animation4 btn btn-lg btn-danger btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4"> Colorful Style Sheets </label> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 

@@ -1,14 +1,29 @@
+h3 {
+    font-family: cursive;
+    color: white;
+  text-shadow: 2px 2px 6px #000000;
+}
+
+
+.next {
+margin-right: 90%;
+margin-bottom: 2%;
+   
+}
+
 h1 {
     text-align: center;
 }
+
+
  .init {
 text-align: center;
  }
   
  /*score*/
  .card {
-    width: 380px;
-    border: none
+    width: 44%;
+    border: none;
 }
 
 .border {
@@ -24,11 +39,11 @@ text-align: center;
 }
 
 .text {
-    color: #0D47A1
+    color: #a10d70
 }
 
 .speed {
-    background-color: #FFE082
+    background-color:#b9f6f1 
 }
 
 .char {
@@ -36,14 +51,11 @@ text-align: center;
     font-weight: 700
 }
 
-.container{
 
-text-align: center;
-}
 
 /*q*/
 body {
-    background-color: #616161
+    background-color:#72e4be
 }
 
 label.btn {
@@ -75,8 +87,8 @@ label .btn-label {
     top: 0;
     display: inline-block;
     padding: 0 10px;
-    background: #000000;
-    height: 100%
+    background:#83b7da;
+    height: 100%;
 }
 
 label .glyphicon {
@@ -84,6 +96,7 @@ label .glyphicon {
 }
 
 .element-animation1 {
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif
     animation: animationFrames ease .8s;
     animation-iteration-count: 1;
     transform-origin: 50% 50%;
@@ -178,6 +191,17 @@ label .glyphicon {
     color: inherit
 }
 
-.modal-body {
-    min-height: 300px
+.modal-content {
+   
+        height: 100%;
+        width: 100%;
+        
 }
+
+img {
+    width: 100%;
+    height: 100%;
+    
+}   
+
+

@@ -151,13 +151,36 @@ function render_question(selected, q_image)
 
     }
 
-    s += `<img src="assets/images/${gType}/always.jpg" style="width:500px;height:600px;"></img>`
+    s += `<img src="assets/images/${gType}/always.jpg"></img>`
 
     if (q_image){
-        s += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')" style="width:500px;height:600px;"></img>`
+        s += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')" ></img>`
     }
     
-    elQs.innerHTML = s
+   
+    var elquiz = document.querySelector('.quiz')
+    var quiz = ''
+    var elBathen = document.querySelector('.modal-header')
+    var m = ""
+
+    m +=  m + `<h3>${que['q']}</h3>`
+
+    var arr = ['1', '2', '3', '4']
+    for (var i = 0; i < 4; i++) {
+        quiz = quiz + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
+        quiz = quiz + "<br><br>"
+
+    }
+
+    quiz += `<img src="assets/images/${gType}/always.jpg"></img>`
+
+    if (q_image){
+        quiz += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')"></img>`
+    }
+
+    elBathen.innerHTML = m;
+    elquiz.innerHTML=quiz
+
 }
 
 

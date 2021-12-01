@@ -43,7 +43,7 @@ function choice(answer, selected) {
         count['success_count']++
         var elCount = document.querySelector('.text')
         elCount.innerHTML = `מספר תשובות נכונות ברצף: ${count['success_count']}/2`
-        var elP= document.querySelector('.text-warning')
+        var elP= document.querySelector('.text-warning1')
         elP.innerHTML=`${count['success_count']/2 *100}%`
         if (count['success_count'] === 2) {
             delete exam[selected];
@@ -135,7 +135,7 @@ function render_question(selected, q_image)
 
     var elCount = document.querySelector('.text')
     elCount.innerHTML = `מספר תשובות נכונות ברצף: ${game_exam[selected]["success_count"]}/2`
-    elP=document.querySelector('.text-warning')
+    elP=document.querySelector('.text-warning1')
     elP.innerHTML=`${game_exam[selected]['success_count']/2 * 100}%`
 
     var elQs = document.querySelector('.question')

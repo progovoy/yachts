@@ -52,9 +52,11 @@ function choice(answer, selected) {
 
             count_exam['c']++
             if (count_exam['c'] === count_exam['total']) {
-                var elQues = document.querySelector('.questions')
-                elQues.style.color = "green"
-                elQues.innerHTML = `${count_exam['c']}/${count_exam['total']} you are completed the exam!`
+                var elem = document.querySelector('.heading1')
+                elem.innerHTML = `You are completed the exam!`
+                elem = document.querySelector('.text-success')
+                elem.innerHTML=`100%`
+
             }
         }
     } else {
@@ -123,8 +125,12 @@ function render_question(selected, q_image)
     var que = exam[selected]
     var should_mark = false
 
-    var elQues = document.querySelector('.questions')
-    elQues.innerHTML = `questions ${count_exam['c']}/${count_exam['total']}`
+    var elQues = document.querySelector('.heading1')
+    elQues.innerHTML = `שאלות: ${count_exam['c']}/${count_exam['total']}`
+    var elP= document.querySelector('.text-success')
+    elP.innerHTML=`${count_exam['c']/count_exam['total']*100}%`
+
+
     var elCount = document.querySelector('.count')
     elCount.innerHTML = `count ${game_exam[selected]["success_count"]}/2`
 

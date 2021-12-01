@@ -5,10 +5,14 @@ h3 {
 }
 
 
-.next {
-margin-right: 90%;
+.BBottom {
+margin-right: 80%;
 margin-bottom: 2%;
-   
+ 
+}
+
+.next {
+    margin: 5px;
 }
 
 h1 {
@@ -203,5 +207,3 @@ img {
     height: 100%;
     
 }   
-
-

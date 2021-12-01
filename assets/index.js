@@ -42,7 +42,7 @@ function choice(answer, selected) {
         element.style.color = "green"
         count['success_count']++
         var elCount = document.querySelector('.text')
-        elCount.innerHTML = `count ${count['success_count']}/2`
+        elCount.innerHTML = `מספר תשובות נכונות ברצף: ${count['success_count']}/2`
         var elP= document.querySelector('.text-warning')
         elP.innerHTML=`${count['success_count']/2 *100}%`
         if (count['success_count'] === 2) {
@@ -147,12 +147,7 @@ function render_question(selected, q_image)
         }
     }
 
-    if (should_mark) {
-        s = s + `<h3>*${que['q']}</h3>`
-    }
-    else {
-        s = s + `<h3>${que['q']}</h3>`
-    }
+
 
     var arr = ['1', '2', '3', '4']
     for (var i = 0; i < 4; i++) {
@@ -173,7 +168,13 @@ function render_question(selected, q_image)
     var elBathen = document.querySelector('.modal-header')
     var m = ""
 
-    m +=  m + `<h3>${que['q']}</h3>`
+    if (should_mark) {
+        m =  m + `<h2>(*) ${que['q']}</h2>`
+    }
+    else {
+        m =  m + `<h2>${que['q']}</h2>`
+    }
+    
 
     var arr = ['1', '2', '3', '4']
     for (var i = 0; i < 4; i++) {

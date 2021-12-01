@@ -41,8 +41,10 @@ function choice(answer, selected) {
         var element = document.querySelector(`.css-${correct}`)
         element.style.color = "green"
         count['success_count']++
-        var elCount = document.querySelector('.count')
+        var elCount = document.querySelector('.text')
         elCount.innerHTML = `count ${count['success_count']}/2`
+        var elP= document.querySelector('.text-warning')
+        elP.innerHTML=`${count['success_count']/2 *100}%`
         if (count['success_count'] === 2) {
             delete exam[selected];
             var index = mandat.indexOf(parseInt(selected));
@@ -131,8 +133,10 @@ function render_question(selected, q_image)
     elP.innerHTML=`${count_exam['c']/count_exam['total']*100}%`
 
 
-    var elCount = document.querySelector('.count')
-    elCount.innerHTML = `count ${game_exam[selected]["success_count"]}/2`
+    var elCount = document.querySelector('.text')
+    elCount.innerHTML = `מספר תשובות נכונות ברצף: ${game_exam[selected]["success_count"]}/2`
+    elP=document.querySelector('.text-warning')
+    elP.innerHTML=`${game_exam[selected]['success_count']/2 * 100}%`
 
     var elQs = document.querySelector('.question')
     var s = ""

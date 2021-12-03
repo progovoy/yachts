@@ -14,6 +14,27 @@ var count_equ = {
     "total": Object.keys(q_equ).length
 }
 
+function init_train() {
+    var elInit = document.querySelector('.init')
+    var s = `<button role="button" onclick="init_exam('yam')">Yamaut</button>`
+    s+=` <button role="button" onclick="init_exam('mec')">Machine</button>`
+    s+=` <button role="button" onclick="init_exam('equ')">Navigation</button>`
+    
+    elInit.innerHTML=s
+    elInit.style.display='block'
+}
+
+function init_sim() {
+    var elInit = document.querySelector('.init')
+    var s = `<button role="button" onclick="init_sim_exam('yam')">Yamaut</button>`
+    s+=` <button role="button" onclick="init_sim_exam('mec')">Machine</button>`
+    s+=` <button role="button" onclick="init_sim_exam('equ')">Navigation</button>`
+    
+    elInit.innerHTML=s
+    elInit.style.display='block'
+
+}
+
 function random(obj) {
     var keys = Object.keys(obj)
     if (keys.length === 0) {
@@ -73,6 +94,8 @@ function choice(answer, selected) {
 }
 
 function init_exam(type) {
+    var elCont=document.querySelector('.container-fluid')
+    elCont.style.display="block"
     if (gType === type) {
         return
     }

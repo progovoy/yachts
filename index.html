@@ -18,7 +18,11 @@
 
 <body>
     <h1>Yachts Exam</h1>
-
+    <br>
+    <div style="text-align: center;">
+        <button onclick="init_train()">אימון</button>
+        <button onclick="init_sim()">סימולציה</button>
+    </div>
     <div class="status">
         <div class="questions"></div>
 
@@ -28,10 +32,8 @@
     <br>
     
     <div class="question-list"></div>
-    <div class="init">
-        <button role="button" onclick="init_exam('yam')">Yamaut</button>
-        <button role="button" onclick="init_exam('mec')">Machine</button>
-        <button role="button" onclick="init_exam('equ')">Navigation</button>
+    <div class="init" style="display:none;">
+        
     </div>
   
     <br>
@@ -40,7 +42,7 @@
     <br>
     <br>
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="display:none;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="container d-flex justify-content-center mt-4">
@@ -77,7 +79,7 @@
     </div>
 
     <div class="BBottom"> 
-        <button class="next"  onclick="init_next()">next</button>
+        <button class="next" style="display: none;" onclick="init_next()">next</button>
         <br>
         <button class="next_must" style="display:none" onclick="init_must_next()">next mandatory</button>
     </div>

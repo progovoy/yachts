@@ -16,9 +16,9 @@ var count_equ = {
 
 function init_train() {
     var elInit = document.querySelector('.init')
-    var s = `<button role="button" onclick="init_exam('yam')">Yamaut</button>`
-    s+=` <button role="button" onclick="init_exam('mec')">Machine</button>`
-    s+=` <button role="button" onclick="init_exam('equ')">Navigation</button>`
+    var s = `<button role="button" onclick="init_exam('yam')">ימאות</button>`
+    s+=` <button role="button" onclick="init_exam('mec')">מכונה</button>`
+    s+=` <button role="button" onclick="init_exam('equ')">ניווט מכשירים</button>`
     
     elInit.innerHTML=s
     elInit.style.display='block'
@@ -26,12 +26,17 @@ function init_train() {
 
 function init_sim() {
     var elInit = document.querySelector('.init')
-    var s = `<button role="button" onclick="init_sim_exam('yam')">Yamaut</button>`
-    s+=` <button role="button" onclick="init_sim_exam('mec')">Machine</button>`
-    s+=` <button role="button" onclick="init_sim_exam('equ')">Navigation</button>`
+    var s = `<button role="button" onclick="init_sim_exam('yam')">ימאות</button>`
+    s+=` <button role="button" onclick="init_sim_exam('mec')">מכונה</button>`
+    s+=` <button role="button" onclick="init_sim_exam('equ')">ניווט מכשירים</button>`
     
     elInit.innerHTML=s
     elInit.style.display='block'
+
+}
+
+function init_sim_exam(type) {
+
 
 }
 

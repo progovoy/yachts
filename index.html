@@ -17,11 +17,11 @@
 </head>
 
 <body>
-    <h1>Yachts Exam</h1>
+    <h1>הכנה למשיט 30</h1>
     <br>
     <div style="text-align: center;">
         <button onclick="init_train()">אימון</button>
-        <button onclick="init_sim()">סימולציה</button>
+        <button onclick="init_sim()" style="display: none;">סימולציה</button>
     </div>
     <div class="status">
         <div class="questions"></div>
@@ -62,6 +62,11 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="BBottom"> 
+                    <button class="next" style="display: none;" onclick="init_next()">שאלה הבאה</button>
+                    <button class="next_must" style="display:none" onclick="init_must_next()">שאלת חובה הבאה</button>
+                </div>
             
                 <div class="modal-header">
                     <h3></h3>
@@ -76,12 +81,6 @@
             </div>
            
         </div>
-    </div>
-
-    <div class="BBottom"> 
-        <button class="next" style="display: none;" onclick="init_next()">next</button>
-        <br>
-        <button class="next_must" style="display:none" onclick="init_must_next()">next mandatory</button>
     </div>
 
 </body>

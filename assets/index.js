@@ -1,4 +1,4 @@
-console.log(q_equ)
+console.log(q_yam)
 
 var gType = null
 var count_yam = {
@@ -174,22 +174,6 @@ function render_question(selected, q_image)
             should_mark = true
         }
     }
-
-
-
-    var arr = ['1', '2', '3', '4']
-    for (var i = 0; i < 4; i++) {
-        s = s + `<button class="css-${arr[i]}" onclick="choice('${arr[i]}', ${selected})">${arr[i]}. ${que['opts'][arr[i]]}</button>`
-        s = s + "<br><br>"
-
-    }
-
-    s += `<img src="assets/images/${gType}/always.jpg"></img>`
-
-    if (q_image){
-        s += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')" ></img>`
-    }
-    
    
     var elquiz = document.querySelector('.quiz')
     var quiz = ''
@@ -216,6 +200,8 @@ function render_question(selected, q_image)
     if (q_image){
         quiz += `<img src="assets/images/${gType}/${selected}.jpg" onerror="imgError('${selected}')"></img>`
     }
+
+    quiz += `<embed src="assets/images/all.pdf"/>`
 
     elBathen.innerHTML = m;
     elquiz.innerHTML=quiz
